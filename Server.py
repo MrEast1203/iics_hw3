@@ -60,18 +60,34 @@ def AuthUser(name):
 	clientData = uint8array_from_dict(data['clientData'])
 	authData = uint8array_from_dict(data['authData'])
 	signature = uint8array_from_dict(data['signature'])
-
+	print(publickey['-2'][str(0)])
+	print(type(publickey['-2'][str(0)]))
+	x=''
+	for i in range(32):
+		x=x+str(publickey['-2'][str(i)])
+	y=''
+	for i in range(32):
+		y=y+str(publickey['-3'][str(i)])
 	# TODO:驗證簽章的真偽（30分）
-	digest = hashes.Hash(hashes.SHA256())
-	digest.update(clientData)
-	signature_base = authData+clientData
-	verifier = publickey.verifier(signature, curve)
-	verifier.update(signature_base)
+	publicKey=ec.EllipticCurvePublicNumbers(int(x), int(y), curve)
+    # Hash the clientData and the authenticatorData
+	clientData_hash = hashes.Hash(hashes.SHA256())
+	clientData_hash.update(clientData)
+	clientData_hash_digest = clientData_hash.finalize()
+ 
+
+    # Concatenate the two hashes
+	concatenated_hash = clientData_hash_digest + authData
+
+    # Verify the signature using the public key
 	try:
-		verifier.verify()
-	except InvalidSignature:
+		publicKey.verify(signature, concatenated_hash, curve)
+		print("Authentication successful")
+		return "true", 201
+	except:
+		print("Authentication failed")
 		return "false", 201
-	return "true", 201
+
 
 
 	

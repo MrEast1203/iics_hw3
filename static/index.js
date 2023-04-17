@@ -81,6 +81,7 @@ async function Registration(){
         //    從decodedAttestationObj中拆解出publicKeyObject（投影片p21、p22）（10分）
         //    驗證挑戰是否相符（10）
         const {authData} = decodedAttestationObj;
+        console.log("🚀 ~ file: index.js:84 ~ .then ~ authData:", authData)
         const dataView = new DataView(new ArrayBuffer(2));
         const idLenBytes = authData.slice(53, 55);
         idLenBytes.forEach((value, index) => dataView.setUint8(index, value));
@@ -133,7 +134,7 @@ async function Login(){
     //從所有使用者中一一比對
     for (var i = 0; i <= Users.length - 1; i++) {
         if (Users[i].name == Username){
-            console.log("id",Users[i].id)
+            console.log("id",base64url.decode(Users[i].id))
             //創建驗證用的挑戰            
             var challenge = new Uint8Array(32);
             window.crypto.getRandomValues(challenge);
@@ -144,7 +145,7 @@ async function Login(){
                 //註：若想使用手機的Passkey，最好直接不要specify "transport"這個選項，也就是直接不要加
                 challenge: challenge,
                 allowCredentials: [{
-                    id: Uint8Array.from(Users[i].id, c => c.charCodeAt(0)),
+                    id: base64url.decode(Users[i].id),
                     type: 'public-key'
                 }],
                 timeout: 60000,
@@ -166,6 +167,13 @@ async function Login(){
                 console.log("🚀 ~ file: index.js:166 ~ .then ~ clientDataObj:", clientDataObj)
                 if(base64url.encode(challenge)!==clientDataObj.challenge) throw new Error('挑戰不相符');
 
+                // const decodedAttestationObj = CBOR.decode(assertion.response.authenticatorData);
+                // console.log(decodedAttestationObj)
+        
+                // const {authData} = decodedAttestationObj;
+                // console.log("🚀 ~ file: index.js:176 ~ .then ~ authData:", authData)
+                
+
                 authUser(Username, assertion.response.clientDataJSON, assertion.response.authenticatorData, assertion.response.signature)
                 .then((result) => {
                     console.log(result)
@@ -182,7 +190,7 @@ async function Login(){
 
             })
             .catch((error) => {
-                location.reload()
+                // location.reload()
                 console.log('FAIL', error)
             })
 
