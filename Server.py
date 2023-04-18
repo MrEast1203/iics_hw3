@@ -65,6 +65,11 @@ def AuthUser(name):
 
 	# TODO:驗證簽章的真偽（30分）
 	publicKey=ec.EllipticCurvePublicKey.from_encoded_point(curve, encoded_point)
+	publicKey=publicKey.public_numbers().public_key()
+	# x = int.from_bytes(uint8array_from_dict(publickey['-2']),'big')
+	# y = int.from_bytes(uint8array_from_dict(publickey['-3']),'big')
+	# publicKey=ec.EllipticCurvePublicNumbers(x, y, curve=curve)
+	# publicKey = publicKey.public_key()
     # Hash the clientData and the authenticatorData
 	clientData_hash = hashes.Hash(hashes.SHA256())
 	clientData_hash.update(clientData)
@@ -76,7 +81,7 @@ def AuthUser(name):
 
     # Verify the signature using the public key
 	try:
-		publicKey.verify(signature, concatenated_hash, curve)
+		publicKey.verify(signature, concatenated_hash, ec.ECDSA(hashes.SHA256()))
 		print("Authentication successful")
 		return "true", 201
 	except:

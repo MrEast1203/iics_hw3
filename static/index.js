@@ -172,9 +172,7 @@ async function Login(){
         
                 // const {authData} = decodedAttestationObj;
                 // console.log("🚀 ~ file: index.js:176 ~ .then ~ authData:", authData)
-                ///////////////////////////////////
 
-                ///////////////////////////////////
                 
 
                 authUser(Username, assertion.response.clientDataJSON, assertion.response.authenticatorData, assertion.response.signature)
